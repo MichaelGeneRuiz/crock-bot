@@ -1,0 +1,32 @@
+{
+  "name": "crock-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "node ./dbInit.js && node ./deploy-commands.js",
+    "start": "node ./index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/builders": "^0.12.0",
+    "@discordjs/opus": "^0.7.0",
+    "@discordjs/rest": "^0.3.0",
+    "@discordjs/voice": "^0.8.0",
+    "discord-api-types": "^0.31.0",
+    "discord-music-player": "^8.3.1",
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
+    "ffmpeg-static": "^5.0.0",
+    "pretty-ms": "^7.0.1",
+    "sequelize": "^6.18.0",
+    "sqlite3": "^4.2.0",
+    "ytdl-core": "^4.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.13.0",
+    "jshint": "^2.13.4"
+  }
+}
