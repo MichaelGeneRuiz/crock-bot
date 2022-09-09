@@ -11,22 +11,22 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/builders": "^0.12.0",
     "@discordjs/opus": "^0.7.0",
     "@discordjs/rest": "^0.3.0",
     "@discordjs/voice": "^0.8.0",
     "discord-api-types": "^0.31.2",
-    "discord-music-player": "^8.3.2",
-    "discord.js": "^13.8.1",
-    "dotenv": "^16.0.1",
+    "discord-music-player": "^9.1.1",
+    "discord.js": "^14.3.0",
+    "dotenv": "^16.0.2",
     "ffmpeg-static": "^5.0.2",
+    "isomorphic-unfetch": "^3.1.0",
     "pretty-ms": "^7.0.1",
-    "sequelize": "^6.21.2",
+    "sequelize": "^6.21.6",
     "sqlite3": "^4.2.0",
-    "ytdl-core": "^4.11.0"
+    "ytdl-core": "^4.11.2"
   },
   "devDependencies": {
-    "eslint": "^8.19.0",
-    "jshint": "^2.13.4"
+    "eslint": "^8.23.0",
+    "jshint": "^2.13.5"
   }
 }

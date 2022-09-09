@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 const commandList = ['help', 'play', 'playlist', 'skip', 'stop', 'repeaton', 'repeatoff', 'shuffle', 'queue', 'nowplaying', 'remove', 'progress'];
 
@@ -143,7 +143,7 @@ module.exports = {
         }
 
         // Creates a message embed for the music queue
-        const queueEmbed = new MessageEmbed()
+        const queueEmbed = new EmbedBuilder()
         .setColor('#8c1567')
         .setTitle('**Music Queue**')
         .addFields(
@@ -186,7 +186,7 @@ module.exports = {
         }
 
         // Creates an embed for the help subcommand
-        const helpEmbed = new MessageEmbed()
+        const helpEmbed = new EmbedBuilder()
         .setColor('#8c1567')
         .setTitle('**Music Commands**')
         .addFields(
