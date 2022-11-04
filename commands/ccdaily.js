@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
+const { SlashCommandBuilder } = require("discord.js");
 const { DailyRewards } = require("../dbObjects.js");
 const ms = require("pretty-ms");
 

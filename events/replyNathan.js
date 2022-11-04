@@ -1,4 +1,5 @@
 const { NathanMessage } = require("../dbObjects.js");
+const { Events } = require("discord.js");
 
 // Instantiate a cooldown variable
 let cooldown = false;
@@ -10,7 +11,7 @@ function randInt(min, max) {
 
 module.exports = {
   // On creation of a message
-  name: "messageCreate",
+  name: Events.MessageCreate,
   async execute(message) {
     // Creates a date object for logging purposes
     const date = new Date();

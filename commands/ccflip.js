@@ -1,6 +1,7 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
+const { SlashCommandBuilder } = require("discord.js");
 const { Users } = require("../dbObjects.js");
 const { EmbedBuilder } = require("discord.js");
+const wait = require("node:timers/promises").setTimeout;
 
 module.exports = {
   // Creates a new slash command
@@ -68,9 +69,7 @@ module.exports = {
     // Replies with the embed
     await interaction.reply({ embeds: [flipEmbed] });
 
-    // Creates sleep promise
-    const sleep = (m) => new Promise((r) => setTimeout(r, m));
-    await sleep(3000);
+    await wait(3000);
 
     // Generates coin flip result
     const result = Math.floor(Math.random() * 2);
@@ -84,7 +83,7 @@ module.exports = {
 
     await interaction.editReply({ embeds: [resultEmbed] });
 
-    await sleep(1500);
+    await wait(1500);
 
     // Awards the money
     if (result == 0 && interaction.options.getString("side") == "Heads") {

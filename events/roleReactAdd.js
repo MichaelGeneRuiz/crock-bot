@@ -1,5 +1,7 @@
+const { Events } = require("discord.js");
+
 module.exports = {
-  name: "messageReactionAdd",
+  name: Events.MessageReactionAdd,
   async execute(reaction, user) {
     // Set up role variables
     const userRole = reaction.message.guild.roles.cache.find(

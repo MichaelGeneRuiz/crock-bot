@@ -1,8 +1,9 @@
 const { Users } = require("../dbObjects.js");
+const { Events } = require("discord.js");
 
 module.exports = {
   // When the bot is ready
-  name: "ready",
+  name: Events.ClientReady,
   once: true,
   async execute(client) {
     // Sync the balances from the database to the currency collection
@@ -16,6 +17,6 @@ module.exports = {
     console.log(
       date.toLocaleString() + " | " + `Ready. Logged in as ${client.user.tag}.`
     );
-    client.user.setActivity("Poggy Woggy");
+    client.user.setActivity("Zaming Rn");
   },
 };

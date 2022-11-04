@@ -1,7 +1,6 @@
 // Necessary Requires
-const fs = require("fs");
-const { REST } = require("@discordjs/rest");
-const { Routes } = require("discord-api-types/v9");
+const fs = require("node:fs");
+const { REST, Routes } = require("discord.js");
 require("dotenv").config();
 
 // Creates an array for commands and finds where to read files
@@ -17,18 +16,27 @@ for (const file of commandFiles) {
 }
 
 // Creates new REST
-const rest = new REST({ version: "9" }).setToken(process.env.BOT_TOKEN);
+const rest = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN);
 
 // Adds commands to the REST
-rest
-  .put(
-    Routes.applicationGuildCommands(
-      process.env.CLIENT_ID,
-      process.env.GUILD_ID
-    ),
-    { body: commands }
-  )
-  .then(() =>
-    console.log("Successfully registered application commands to this guild.")
-  )
-  .catch(console.error);
+async () => {
+  try {
+    console.log(
+      `Started refreshing ${commands.length} application (/) commands.`
+    );
+
+    const data = await rest.put(
+      Routes.applicationGuildCommands(
+        process.env.CLIENT_ID,
+        process.env.GUILD_ID
+      ),
+      { body: commands }
+    );
+
+    console.log(
+      `Successfully reloaded ${data.length} application (/) commands.`
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};

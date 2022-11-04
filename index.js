@@ -1,7 +1,9 @@
 // Necessary Requires
-const fs = require("fs");
+const fs = require("node:fs");
+const path = require("node:path");
 const {
   Client,
+  Events,
   Collection,
   GatewayIntentBits,
   Partials,
@@ -61,24 +63,34 @@ client.player = player;
 
 // Creates a collection for slash commands
 client.commands = new Collection();
+const commandsPath = path.join(__dirname, "commands");
 const commandFiles = fs
-  .readdirSync("./commands")
+  .readdirSync(commandsPath)
   .filter((file) => file.endsWith(".js"));
 
 // Registers the slash commands
 for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  client.commands.set(command.data.name, command);
+  const filePath = path.join(commandsPath, file);
+  const command = require(filePath);
+  if ("data" in command && "execute" in command) {
+    client.commands.set(command.data.name, command);
+  } else {
+    console.log(
+      `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+    );
+  }
 }
 
 // Finds event files
+const eventsPath = path.join(__dirname, "events");
 const eventFiles = fs
-  .readdirSync("./events")
+  .readdirSync(eventsPath)
   .filter((file) => file.endsWith(".js"));
 
 // Triggers one-time events, and listens for constant events
 for (const file of eventFiles) {
-  const event = require(`./events/${file}`);
+  const filePath = path.join(eventsPath, file);
+  const event = require(filePath);
   if (event.once) {
     client.once(event.name, (...args) => event.execute(...args));
   } else {
@@ -116,18 +128,19 @@ client.player
   });
 
 // Triggering slash commands
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isCommand()) {
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isChatInputCommand()) {
     return;
   }
 
-  const command = client.commands.get(interaction.commandName);
-
-  const date = new Date();
+  const command = interaction.client.commands.get(interaction.commandName);
 
   if (!command) {
+    console.error(`No command matching ${interaction.commandName} was found.`);
     return;
   }
+
+  const date = new Date();
 
   try {
     await command.execute(interaction);

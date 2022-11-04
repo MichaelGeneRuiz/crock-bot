@@ -1,202 +1,268 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require("@discordjs/builders");
+const { EmbedBuilder } = require("discord.js");
+const wait = require("node:timers/promises").setTimeout;
 
-const commandList = ['help', 'play', 'playlist', 'skip', 'stop', 'repeaton', 'repeatoff', 'shuffle', 'queue', 'nowplaying', 'remove', 'progress'];
+const commandList = [
+  "help",
+  "play",
+  "playlist",
+  "skip",
+  "stop",
+  "repeaton",
+  "repeatoff",
+  "shuffle",
+  "queue",
+  "nowplaying",
+  "remove",
+  "progress",
+];
 
 module.exports = {
-    // Creates a new slash command (with a lot of subcommands)
-    data:  new SlashCommandBuilder()
-        .setName('music')
-        .setDescription('Necessary prefix for all music commands.')
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('play')
-                .setDescription('Adds the provided song to the queue.')
-                .addStringOption(option => option.setName('song').setDescription('The name or link of the song you want to play.').setRequired(true)))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('playlist')
-                .setDescription('Adds the provided playlist to the queue.')
-                .addStringOption(option => option.setName('playlist').setDescription('The name or link of the playlist you want to play.').setRequired(true)))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('skip')
-                .setDescription('Skips the current song.'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('stop')
-                .setDescription('Stops the current song.'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('repeaton')
-                .setDescription('Turns on repeat for the current song.'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('repeatoff')
-                .setDescription('Turns off repeat for the current song'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('shuffle')
-                .setDescription('Shuffles the current queue.'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('queue')
-                .setDescription('Displays the songs currently in queue.'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('nowplaying')
-                .setDescription('Displays the current song.'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('remove')
-                .setDescription('Removes the song from the given position in queue.')
-                .addIntegerOption(option => option.setName('index').setDescription('Which song to remove from the queue. (Queue Position)').setRequired(true)))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('progress')
-                .setDescription('Shows the progress bar for the current song.'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('help')
-                .setDescription('Replies ephemerally with a list of music commands.')),
-    async execute(interaction) {
-        // Creates a queue for the music player
-        const guildQueue = interaction.client.player.createQueue(interaction.guild.id);
+  // Creates a new slash command (with a lot of subcommands)
+  data: new SlashCommandBuilder()
+    .setName("music")
+    .setDescription("Necessary prefix for all music commands.")
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("play")
+        .setDescription("Adds the provided song to the queue.")
+        .addStringOption((option) =>
+          option
+            .setName("song")
+            .setDescription("The name or link of the song you want to play.")
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("playlist")
+        .setDescription("Adds the provided playlist to the queue.")
+        .addStringOption((option) =>
+          option
+            .setName("playlist")
+            .setDescription(
+              "The name or link of the playlist you want to play."
+            )
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand.setName("skip").setDescription("Skips the current song.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand.setName("stop").setDescription("Stops the current song.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("repeaton")
+        .setDescription("Turns on repeat for the current song.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("repeatoff")
+        .setDescription("Turns off repeat for the current song")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("shuffle")
+        .setDescription("Shuffles the current queue.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("queue")
+        .setDescription("Displays the songs currently in queue.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("nowplaying")
+        .setDescription("Displays the current song.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("remove")
+        .setDescription("Removes the song from the given position in queue.")
+        .addIntegerOption((option) =>
+          option
+            .setName("index")
+            .setDescription(
+              "Which song to remove from the queue. (Queue Position)"
+            )
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("progress")
+        .setDescription("Shows the progress bar for the current song.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("help")
+        .setDescription("Replies ephemerally with a list of music commands.")
+    ),
+  async execute(interaction) {
+    // Creates a queue for the music player
+    const guildQueue = interaction.client.player.createQueue(
+      interaction.guild.id
+    );
 
-        // If the user wants to add a song to the queue
-        if (interaction.options.getSubcommand() === 'play') {
+    // If the user wants to add a song to the queue
+    if (interaction.options.getSubcommand() === "play") {
+      if (!interaction.member.voice.channel) {
+        return interaction.reply("You are not currently in a voice channel.");
+      }
 
-            if (!interaction.member.voice.channel) {
-                return interaction.reply('You are not currently in a voice channel.');
-            }
+      await interaction.deferReply();
 
-            await interaction.deferReply();
+      const queue = interaction.client.player.createQueue(interaction.guild.id);
+      await queue.join(interaction.member.voice.channel);
+      const song = await queue
+        .play(interaction.options.getString("song"))
+        .catch(() => {
+          if (!guildQueue) {
+            queue.stop();
 
-            const queue = interaction.client.player.createQueue(interaction.guild.id);
-            await queue.join(interaction.member.voice.channel);
-            const song = await queue.play(interaction.options.getString('song')).catch(() => {
-                if (!guildQueue) {
-                    queue.stop();
+            return interaction.editReply("Error playing that song.");
+          }
+        });
 
-                    return interaction.editReply('Error playing that song.');
-                }
-            });
+      return interaction.editReply(
+        `Song ${song} [${song.duration}] was added to the queue.`
+      );
+    }
 
-            return interaction.editReply(`Song ${song} [${song.duration}] was added to the queue.`);
-        }
+    // If the user wants to add a playlist to the queue
+    if (interaction.options.getSubcommand() === "playlist") {
+      if (!interaction.member.voice.channel) {
+        return interaction.reply("You are not currently in a voice channel.");
+      }
 
-        // If the user wants to add a playlist to the queue
-        if (interaction.options.getSubcommand() === 'playlist') {
+      await interaction.deferReply();
 
-            if (!interaction.member.voice.channel) {
-                return interaction.reply('You are not currently in a voice channel.');
-            }
+      const queue = interaction.client.player.createQueue(interaction.guild.id);
+      await queue.join(interaction.member.voice.channel);
+      const song = await queue
+        .playlist(interaction.options.getString("playlist"))
+        .catch(() => {
+          if (!guildQueue) {
+            queue.stop();
+          }
 
-            await interaction.deferReply();
+          return interaction.editReply("Error playing that playlist.");
+        });
 
-            const queue = interaction.client.player.createQueue(interaction.guild.id);
-            await queue.join(interaction.member.voice.channel);
-            const song = await queue.playlist(interaction.options.getString('playlist')).catch(() => {
-                if (!guildQueue) {
-                    queue.stop();
-                }
+      return interaction.editReply(`Playlist ${song} was added to the queue.`);
+    }
 
-                return interaction.editReply('Error playing that playlist.');
-            });
+    // If the user wants to skip the current song
+    if (interaction.options.getSubcommand() === "skip") {
+      guildQueue.skip();
 
-            return interaction.editReply(`Playlist ${song} was added to the queue.`);
-        }
+      return interaction.reply("Skipped the current song.");
+    }
 
-        // If the user wants to skip the current song
-        if (interaction.options.getSubcommand() === 'skip') {
-            guildQueue.skip();
+    // If the user wants to stop the music player
+    if (interaction.options.getSubcommand() === "stop") {
+      guildQueue.stop();
 
-            return interaction.reply('Skipped the current song.');
-        }
+      return interaction.reply("Stopped the music player.");
+    }
 
-        // If the user wants to stop the music player
-        if (interaction.options.getSubcommand() === 'stop') {
-            guildQueue.stop();
+    // If the user wants the current song to repeat
+    if (interaction.options.getSubcommand() === "repeaton") {
+      guildQueue.setRepeatMode(1);
 
-            return interaction.reply('Stopped the music player.');
-        }
+      return interaction.reply(
+        "The current song will now be played on repeat."
+      );
+    }
 
-        // If the user wants the current song to repeat
-        if (interaction.options.getSubcommand() === 'repeaton') {
-            guildQueue.setRepeatMode(1);
+    // If the user no longer wants the current song to repeat
+    if (interaction.options.getSubcommand() === "repeatoff") {
+      guildQueue.setRepeatMode(0);
 
-            return interaction.reply('The current song will now be played on repeat.');
-        }
+      return interaction.reply(
+        "The current song will no longer be played on repeat."
+      );
+    }
 
-        // If the user no longer wants the current song to repeat
-        if (interaction.options.getSubcommand() === 'repeatoff') {
-            guildQueue.setRepeatMode(0);
+    // If the user wants to shuffle the queue
+    if (interaction.options.getSubcommand() === "shuffle") {
+      guildQueue.shuffle();
 
-            return interaction.reply('The current song will no longer be played on repeat.');
-        }
+      return interaction.reply("The queue has been shuffled.");
+    }
 
-        // If the user wants to shuffle the queue
-        if (interaction.options.getSubcommand() === 'shuffle') {
-            guildQueue.shuffle();
+    // Creates a message embed for the music queue
+    const queueEmbed = new EmbedBuilder()
+      .setColor("#8c1567")
+      .setTitle("**Music Queue**")
+      .addFields({
+        name: `**${guildQueue.songs.length} songs currently in queue:**\n`,
+        value:
+          guildQueue.songs.length === 0
+            ? "There are no songs in the queue."
+            : guildQueue.songs
+                .slice(0, 10)
+                .map(
+                  (song) =>
+                    `${guildQueue.songs.indexOf(song) + 1}. ${song} [${
+                      song.duration
+                    }]`
+                )
+                .join("\n"),
+      });
 
-            return interaction.reply('The queue has been shuffled.');
-        }
+    // If the user wants to see the songs currently in queue
+    if (interaction.options.getSubcommand() === "queue") {
+      return interaction.reply({ embeds: [queueEmbed] });
+    }
 
-        // Creates a message embed for the music queue
-        const queueEmbed = new EmbedBuilder()
-        .setColor('#8c1567')
-        .setTitle('**Music Queue**')
-        .addFields(
-            { name: `**${guildQueue.songs.length} songs currently in queue:**\n`, value: (guildQueue.songs.length === 0) ? 'There are no songs in the queue.' : guildQueue.songs.slice(0, 10).map(song => `${guildQueue.songs.indexOf(song) + 1}. ${song} [${song.duration}]`).join('\n') },
-        );
+    // If the user wants to see the current song
+    if (interaction.options.getSubcommand() === "nowplaying") {
+      await interaction.reply(
+        `Now playing: ${guildQueue.nowPlaying} [${guildQueue.nowPlaying.duration}]. `
+      );
+      await wait(10000);
+      return interaction.deleteReply();
+    }
 
-        // If the user wants to see the songs currently in queue
-        if (interaction.options.getSubcommand() === 'queue') {
-            return interaction.reply({ embeds: [queueEmbed] });
-        }
+    // If the user wants to remove the current song from the queue
+    if (interaction.options.getSubcommand() === "remove") {
+      const index = interaction.options.getInteger("index") - 1;
 
-        // If the user wants to see the current song
-        if (interaction.options.getSubcommand() === 'nowplaying') {
-            return interaction.reply(`Now playing: ${guildQueue.nowPlaying} [${guildQueue.nowPlaying.duration}]. `)
-            .then(msg => setTimeout(() => msg.delete(), 10000));
-        }
+      if (index < 0 || index > guildQueue.songs.length - 1) {
+        return interaction.reply("Your inputted number is out of bounds.");
+      }
 
-        // If the user wants to remove the current song from the queue
-        if (interaction.options.getSubcommand() === 'remove') {
+      const removedSong = guildQueue.songs[index];
 
-            const index = interaction.options.getInteger('index') - 1;
+      guildQueue.remove(index);
 
-            if (index < 0 || index > guildQueue.songs.length - 1) {
-                return interaction.reply('Your inputted number is out of bounds.');
-            }
+      return interaction.reply(
+        `Removed ${removedSong} [${removedSong.duration}] from the queue.`
+      );
+    }
 
-            const removedSong = guildQueue.songs[index];
+    // If the user wants to see the progress bar for the current song
+    if (interaction.options.getSubcommand() === "progress") {
+      const ProgressBar = guildQueue.createProgressBar();
 
-            guildQueue.remove(index);
+      return interaction.reply(ProgressBar.prettier);
+    }
 
-            return interaction.reply(`Removed ${removedSong} [${removedSong.duration}] from the queue.`);
+    // Creates an embed for the help subcommand
+    const helpEmbed = new EmbedBuilder()
+      .setColor("#8c1567")
+      .setTitle("**Music Commands**")
+      .addFields({
+        name: `There are ${commandList.length} music commands`,
+        value: commandList.map((command) => `/music ${command}`).join("\n"),
+      });
 
-        }
-
-        // If the user wants to see the progress bar for the current song
-        if (interaction.options.getSubcommand() === 'progress') {
-            const ProgressBar = guildQueue.createProgressBar();
-
-            return interaction.reply(ProgressBar.prettier);
-        }
-
-        // Creates an embed for the help subcommand
-        const helpEmbed = new EmbedBuilder()
-        .setColor('#8c1567')
-        .setTitle('**Music Commands**')
-        .addFields(
-            { name: `There are ${commandList.length} music commands`, value: commandList.map(command => `/music ${command}`).join('\n') },
-        );
-
-        // If the user wants a list of music commands
-        if (interaction.options.getSubcommand() === 'help') {
-            return interaction.reply({ embeds: [helpEmbed], ephemeral: true });
-        }
-
-    },
+    // If the user wants a list of music commands
+    if (interaction.options.getSubcommand() === "help") {
+      return interaction.reply({ embeds: [helpEmbed], ephemeral: true });
+    }
+  },
 };
