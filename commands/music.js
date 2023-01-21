@@ -114,21 +114,30 @@ module.exports = {
 
       await interaction.deferReply();
 
-      const queue = interaction.client.player.createQueue(interaction.guild.id);
-      await queue.join(interaction.member.voice.channel);
-      const song = await queue
-        .play(interaction.options.getString("song"))
-        .catch(() => {
-          if (!guildQueue) {
-            queue.stop();
+      try {
+        const queue = interaction.client.player.createQueue(
+          interaction.guild.id
+        );
+        await queue.join(interaction.member.voice.channel);
+        const song = await queue
+          .play(interaction.options.getString("song"))
+          .catch(() => {
+            if (!guildQueue) {
+              queue.stop();
 
-            return interaction.editReply("Error playing that song.");
-          }
-        });
+              return interaction.editReply("Error playing that song.");
+            }
+          });
 
-      return interaction.editReply(
-        `Song ${song} [${song.duration}] was added to the queue.`
-      );
+        return interaction.editReply(
+          `Song ${song} [${song.duration}] was added to the queue.`
+        );
+      } catch (error) {
+        console.log(error.message);
+        return interaction.editReply(
+          "Something went wrong when queueing a song."
+        );
+      }
     }
 
     // If the user wants to add a playlist to the queue
@@ -139,92 +148,150 @@ module.exports = {
 
       await interaction.deferReply();
 
-      const queue = interaction.client.player.createQueue(interaction.guild.id);
-      await queue.join(interaction.member.voice.channel);
-      const song = await queue
-        .playlist(interaction.options.getString("playlist"))
-        .catch(() => {
-          if (!guildQueue) {
-            queue.stop();
-          }
+      try {
+        const queue = interaction.client.player.createQueue(
+          interaction.guild.id
+        );
+        await queue.join(interaction.member.voice.channel);
+        const song = await queue
+          .playlist(interaction.options.getString("playlist"))
+          .catch(() => {
+            if (!guildQueue) {
+              queue.stop();
+            }
 
-          return interaction.editReply("Error playing that playlist.");
-        });
+            return interaction.editReply("Error playing that playlist.");
+          });
 
-      return interaction.editReply(`Playlist ${song} was added to the queue.`);
+        return interaction.editReply(
+          `Playlist ${song} was added to the queue.`
+        );
+      } catch (error) {
+        console.log(error.message);
+        return interaction.editReply(
+          "Something went wrong when queuing a playlist."
+        );
+      }
     }
 
     // If the user wants to skip the current song
     if (interaction.options.getSubcommand() === "skip") {
-      guildQueue.skip();
+      try {
+        guildQueue.skip();
 
-      return interaction.reply("Skipped the current song.");
+        return interaction.reply("Skipped the current song.");
+      } catch (error) {
+        console.log(error.message);
+        return interaction.reply("Something went wrong when skipping.");
+      }
     }
 
     // If the user wants to stop the music player
     if (interaction.options.getSubcommand() === "stop") {
-      guildQueue.stop();
+      try {
+        guildQueue.stop();
 
-      return interaction.reply("Stopped the music player.");
+        return interaction.reply("Stopped the music player.");
+      } catch (error) {
+        console.log(error.message);
+        return interaction.reply(
+          "Something went wrong when stopping the queue."
+        );
+      }
     }
 
     // If the user wants the current song to repeat
     if (interaction.options.getSubcommand() === "repeaton") {
-      guildQueue.setRepeatMode(1);
+      try {
+        guildQueue.setRepeatMode(1);
 
-      return interaction.reply(
-        "The current song will now be played on repeat."
-      );
+        return interaction.reply(
+          "The current song will now be played on repeat."
+        );
+      } catch (error) {
+        console.log(error.message);
+        return interaction.reply(
+          "Something went wrong when turning on repeat mode."
+        );
+      }
     }
 
     // If the user no longer wants the current song to repeat
     if (interaction.options.getSubcommand() === "repeatoff") {
-      guildQueue.setRepeatMode(0);
+      try {
+        guildQueue.setRepeatMode(0);
 
-      return interaction.reply(
-        "The current song will no longer be played on repeat."
-      );
+        return interaction.reply(
+          "The current song will no longer be played on repeat."
+        );
+      } catch (error) {
+        console.log(error.message);
+        return interaction.reply(
+          "Something went wrong when turning off repeat mode."
+        );
+      }
     }
 
     // If the user wants to shuffle the queue
     if (interaction.options.getSubcommand() === "shuffle") {
-      guildQueue.shuffle();
+      try {
+        guildQueue.shuffle();
 
-      return interaction.reply("The queue has been shuffled.");
+        return interaction.reply("The queue has been shuffled.");
+      } catch (error) {
+        console.log(error.message);
+        return interaction.reply(
+          "Something went wrong when turning on shuffle mode."
+        );
+      }
     }
-
-    // Creates a message embed for the music queue
-    const queueEmbed = new EmbedBuilder()
-      .setColor("#8c1567")
-      .setTitle("**Music Queue**")
-      .addFields({
-        name: `**${guildQueue.songs.length} songs currently in queue:**\n`,
-        value:
-          guildQueue.songs.length === 0
-            ? "There are no songs in the queue."
-            : guildQueue.songs
-                .slice(0, 10)
-                .map(
-                  (song) =>
-                    `${guildQueue.songs.indexOf(song) + 1}. ${song} [${
-                      song.duration
-                    }]`
-                )
-                .join("\n"),
-      });
 
     // If the user wants to see the songs currently in queue
     if (interaction.options.getSubcommand() === "queue") {
-      return interaction.reply({ embeds: [queueEmbed] });
+      // Creates a message embed for the music queue
+      const queueEmbed = new EmbedBuilder()
+        .setColor("#8c1567")
+        .setTitle("**Music Queue**")
+        .addFields({
+          name: `**${guildQueue.songs.length} songs currently in queue:**\n`,
+          value:
+            guildQueue.songs.length === 0
+              ? "There are no songs in the queue."
+              : guildQueue.songs
+                  .slice(0, 10)
+                  .map(
+                    (song) =>
+                      `${guildQueue.songs.indexOf(song) + 1}. ${song} [${
+                        song.duration
+                      }]`
+                  )
+                  .join("\n"),
+        });
+
+      try {
+        return interaction.reply({ embeds: [queueEmbed] });
+      } catch (error) {
+        console.log(error);
+        return interaction.reply(
+          "Something went wrong when attempting to view the queue."
+        );
+      }
     }
 
     // If the user wants to see the current song
     if (interaction.options.getSubcommand() === "nowplaying") {
-      await interaction.reply(
-        `Now playing: ${guildQueue.nowPlaying} [${guildQueue.nowPlaying.duration}]. `
-      );
-      await wait(10000);
-      return interaction.deleteReply();
+      try {
+        await interaction.reply(
+          `Now playing: ${guildQueue.nowPlaying} [${guildQueue.nowPlaying.duration}]. `
+        );
+        await wait(10000);
+        return interaction.deleteReply();
+      } catch (error) {
+        console.log(error);
+        return interaction.reply(
+          "Something went wrong when viewing the currently playing song."
+        );
+      }
     }
 
     // If the user wants to remove the current song from the queue
@@ -235,33 +302,45 @@ module.exports = {
         return interaction.reply("Your inputted number is out of bounds.");
       }
 
-      const removedSong = guildQueue.songs[index];
+      try {
+        const removedSong = guildQueue.songs[index];
 
-      guildQueue.remove(index);
+        guildQueue.remove(index);
 
-      return interaction.reply(
-        `Removed ${removedSong} [${removedSong.duration}] from the queue.`
-      );
+        return interaction.reply(
+          `Removed ${removedSong} [${removedSong.duration}] from the queue.`
+        );
+      } catch (error) {
+        console.log(error.message);
+        return interaction.reply(
+          "Something went wrong when trying to remove that song from the queue."
+        );
+      }
     }
 
     // If the user wants to see the progress bar for the current song
     if (interaction.options.getSubcommand() === "progress") {
-      const ProgressBar = guildQueue.createProgressBar();
+      try {
+        const ProgressBar = guildQueue.createProgressBar();
 
-      return interaction.reply(ProgressBar.prettier);
+        return interaction.reply(ProgressBar.prettier);
+      } catch (error) {
+        console.log(error.message);
+        return interaction.reply("Something went wrong with the Progress bar.");
+      }
     }
-
-    // Creates an embed for the help subcommand
-    const helpEmbed = new EmbedBuilder()
-      .setColor("#8c1567")
-      .setTitle("**Music Commands**")
-      .addFields({
-        name: `There are ${commandList.length} music commands`,
-        value: commandList.map((command) => `/music ${command}`).join("\n"),
-      });
 
     // If the user wants a list of music commands
     if (interaction.options.getSubcommand() === "help") {
+      // Creates an embed for the help subcommand
+      const helpEmbed = new EmbedBuilder()
+        .setColor("#8c1567")
+        .setTitle("**Music Commands**")
+        .addFields({
+          name: `There are ${commandList.length} music commands`,
+          value: commandList.map((command) => `/music ${command}`).join("\n"),
+        });
+
       return interaction.reply({ embeds: [helpEmbed], ephemeral: true });
     }
   },
