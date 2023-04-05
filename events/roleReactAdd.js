@@ -4,9 +4,6 @@ module.exports = {
   name: Events.MessageReactionAdd,
   async execute(reaction, user) {
     // Set up role variables
-    const userRole = reaction.message.guild.roles.cache.find(
-      (role) => role.name === process.env.USER_ROLE
-    );
     const tempRole = reaction.message.guild.roles.cache.find(
       (role) => role.name === process.env.TEMP_ROLE
     );
@@ -32,15 +29,8 @@ module.exports = {
 
     // If the react is in the welcome channel
     if (reaction.message.channel.id === process.env.WELCOME_CHANNEL_ID) {
-      // If the user role is selected
-      if (reaction.emoji.name === process.env.USER_ROLE_EMOJI) {
-        // Make them a user
-        await reaction.message.guild.members.cache
-          .get(user.id)
-          .roles.add(userRole);
-      }
       // If the temp role is selected
-      else if (reaction.emoji.name === process.env.TEMP_ROLE_EMOJI) {
+      if (reaction.emoji.name === process.env.TEMP_ROLE_EMOJI) {
         // If they are already a member
         if (
           reaction.message.guild.members.cache
@@ -70,7 +60,7 @@ module.exports = {
             );
         }
       } else {
-        // If it's not one of these two reactions, remove it
+        // If it's not the temp reaction, remove it
         await reaction.remove();
       }
     }
