@@ -7,6 +7,14 @@ module.exports = {
       (role) => role.name === process.env.USER_ROLE
     );
 
-    await member.roles.add(userRole);
+    const nathanRole = member.guild.roles.cache.find(
+      (role) => role.name === "NATHAN"
+    );
+
+    if (member.id === process.env.NATHAN_ID) {
+      await member.roles.add(nathanRole);
+    } else {
+      await member.roles.add(userRole);
+    }
   },
 };
