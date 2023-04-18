@@ -8,13 +8,13 @@ module.exports = {
     );
 
     const nathanRole = member.guild.roles.cache.find(
-      (role) => role.name === "NATHAN"
+      (role) => role.name === "Nathan"
     );
 
     if (member.id === process.env.NATHAN_ID) {
       await member.roles.add(nathanRole);
-    } else {
-      await member.roles.add(userRole);
     }
+
+    await member.roles.add(userRole);
   },
 };
