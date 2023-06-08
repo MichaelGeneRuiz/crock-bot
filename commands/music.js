@@ -118,15 +118,17 @@ module.exports = {
         const queue = interaction.client.player.createQueue(
           interaction.guild.id
         );
+
         await queue.join(interaction.member.voice.channel);
+
         const song = await queue
           .play(interaction.options.getString("song"))
-          .catch(() => {
+          .catch((error) => {
             if (!guildQueue) {
               queue.stop();
-
-              return interaction.editReply("Error playing that song.");
             }
+
+            throw new Error(error);
           });
 
         return interaction.editReply(
@@ -135,7 +137,7 @@ module.exports = {
       } catch (error) {
         console.log(error.message);
         return interaction.editReply(
-          "Something went wrong when queueing a song."
+          "Something went wrong when queueing a song. Please try again."
         );
       }
     }
@@ -155,12 +157,12 @@ module.exports = {
         await queue.join(interaction.member.voice.channel);
         const song = await queue
           .playlist(interaction.options.getString("playlist"))
-          .catch(() => {
+          .catch((error) => {
             if (!guildQueue) {
               queue.stop();
             }
 
-            return interaction.editReply("Error playing that playlist.");
+            throw new Error(error);
           });
 
         return interaction.editReply(
@@ -169,7 +171,7 @@ module.exports = {
       } catch (error) {
         console.log(error.message);
         return interaction.editReply(
-          "Something went wrong when queuing a playlist."
+          "Something went wrong when queuing a playlist. Please try again."
         );
       }
     }

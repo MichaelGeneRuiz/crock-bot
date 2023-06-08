@@ -9,7 +9,7 @@ const {
   Partials,
 } = require("discord.js");
 const { Users } = require("./dbObjects.js");
-const { Player } = require("discord-music-player");
+const { Player } = require("@jadestudios/discord-music-player");
 require("dotenv").config();
 
 // Creation of the Client with Intents
