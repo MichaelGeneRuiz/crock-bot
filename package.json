@@ -15,16 +15,16 @@
     "@discordjs/voice": "^0.16.0",
     "@jadestudios/discord-music-player": "^9.1.1-az23",
     "discord.js": "^14.11.0",
-    "dotenv": "^16.1.4",
+    "dotenv": "^16.3.1",
     "ffmpeg-static": "^5.1.0",
     "isomorphic-unfetch": "^3.1.0",
     "pretty-ms": "^7.0.1",
-    "sequelize": "^6.32.0",
+    "sequelize": "^6.32.1",
     "sqlite3": "^5.1.6",
-    "ytdl-core": "^4.11.4"
+    "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
-    "eslint": "^8.42.0",
+    "eslint": "^8.44.0",
     "jshint": "^2.13.6"
   }
 }
