@@ -108,11 +108,16 @@ client.player
       .get(process.env.MUSIC_CHANNEL_ID)
       .send("Everyone left the voice channel. Leaving now...")
   )
-  // Emitted when there was no more music to play.
   .on("queueEnd", () =>
+    clearInterval.channels.cache
+      .get(process.env.MUSIC_CHANNEL_ID)
+      .send("There are no more songs in the queue.")
+  )
+  // Emitted when the bot leaves the channel
+  .on("clientDisconnect", () =>
     client.channels.cache
       .get(process.env.MUSIC_CHANNEL_ID)
-      .send("There are no more songs in the queue. Leaving now...")
+      .send("2 minute have passed with no music commands. Leaving now...")
   )
   // Emitted when a song changed.
   .on("songChanged", (queue) =>
