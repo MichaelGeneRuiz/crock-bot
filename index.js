@@ -56,8 +56,6 @@ Reflect.defineProperty(client.currency, "getBalance", {
 // Define a music player object
 const player = new Player(client, {
   deafenOnJoin: true,
-  // 2 minute timeout
-  timeout: 120000,
 });
 
 // Allow commands to easily access the music player
