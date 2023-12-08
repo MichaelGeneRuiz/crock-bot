@@ -13,7 +13,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.9.0",
     "@discordjs/voice": "^0.16.0",
-    "@jadestudios/discord-music-player": "^9.1.1-az23",
+    "@jadestudios/discord-music-player": "^9.1.1-az26",
     "discord.js": "^14.11.0",
     "dotenv": "^16.1.4",
     "ffmpeg-static": "^5.1.0",
